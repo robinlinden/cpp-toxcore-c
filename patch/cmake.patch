@@ -1,0 +1,77 @@
+From 991688180cff699b1db39a5820d1ca82ce068654 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Robin=20Lind=C3=A9n?= <dev@robinlinden.eu>
+Date: Sun, 29 Sep 2019 00:44:51 +0200
+Subject: [PATCH] Get libsodium using FetchContent
+
+---
+ CMakeLists.txt           | 10 +++++++++-
+ cmake/Dependencies.cmake | 11 ++++++++++-
+ 2 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c93f17e6..e3f6288f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -156,7 +156,7 @@ set(toxcore_SOURCES ${toxcore_SOURCES}
+ include(CheckFunctionExists)
+ check_function_exists(explicit_bzero HAVE_EXPLICIT_BZERO)
+ check_function_exists(memset_s HAVE_MEMSET_S)
+-set(toxcore_LINK_MODULES ${toxcore_LINK_MODULES} ${LIBSODIUM_LIBRARIES})
++set(toxcore_LINK_MODULES ${toxcore_LINK_MODULES} sodium)
+ set(toxcore_PKGCONFIG_REQUIRES ${toxcore_PKGCONFIG_REQUIRES} libsodium)
+ 
+ # LAYER 2: Basic networking
+@@ -336,6 +336,14 @@ make_version_script(toxcore ${toxcore_API_HEADERS})
+ # "${CMAKE_INSTALL_INCLUDEDIR}/tox".
+ install_module(toxcore DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tox)
+ 
++file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/tox)
++configure_file(
++  ${CMAKE_CURRENT_SOURCE_DIR}/toxcore/tox.h
++  ${CMAKE_CURRENT_SOURCE_DIR}/include/tox/tox.h
++  COPYONLY
++)
++target_include_directories(toxcore_static PUBLIC include)
++
+ ################################################################################
+ #
+ # :: Unit tests: no networking, just pure function calls.
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index 5970fde7..c79b2906 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -4,6 +4,7 @@
+ #
+ ###############################################################################
+ 
++include(FetchContent)
+ include(ModulePackage)
+ 
+ find_package(Threads REQUIRED)
+@@ -13,7 +14,13 @@ find_library(RT_LIBRARIES           rt           )
+ find_library(SOCKET_LIBRARIES       socket       )
+ 
+ # For toxcore.
+-pkg_use_module(LIBSODIUM            libsodium    )
++FetchContent_Declare(
++    Sodium
++    GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
++    GIT_TAG e7ddcd1872909486d4b8bbf82a1be51213e44810 # 1.0.17
++)
++set(SODIUM_DISABLE_TESTS ON CACHE INTERNAL "")
++FetchContent_MakeAvailable(Sodium)
+ 
+ # For toxav.
+ pkg_use_module(OPUS                 opus         )
+@@ -30,6 +37,8 @@ pkg_use_module(OPENCV               opencv       )
+ pkg_use_module(PORTAUDIO            portaudio-2.0)
+ pkg_use_module(SNDFILE              sndfile      )
+ 
++return()
++
+ ###############################################################################
+ #
+ # :: For MSVC Windows builds.
+-- 
+2.16.2.windows.1
+

@@ -4,8 +4,7 @@ project(cxxtox)
 
 include(FetchContent)
 
-FetchContent_Declare(
-    Toxcore
+FetchContent_Declare(Toxcore
     GIT_REPOSITORY https://github.com/TokTok/c-toxcore.git
     GIT_TAG 7aab0d9 # v0.2.10
     PATCH_COMMAND git apply ${CMAKE_CURRENT_SOURCE_DIR}/patch/cmake.patch

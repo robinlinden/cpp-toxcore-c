@@ -17,8 +17,10 @@ set(ENABLE_SHARED FALSE CACHE INTERNAL "")
 FetchContent_MakeAvailable(Toxcore)
 
 add_library(${PROJECT_NAME}
-    include/cxxtox/cxxtox.h
-    src/cxxtox.cpp
+    include/cxxtox/options.h
+    include/cxxtox/tox.h
+    src/options.cpp
+    src/tox.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

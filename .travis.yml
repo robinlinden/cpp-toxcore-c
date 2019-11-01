@@ -1,0 +1,45 @@
+dist: xenial
+language: cpp
+
+addons:
+  apt:
+    packages: &common-apt-packages
+      - python3-pip
+
+matrix:
+  include:
+    - name: "gcc 8"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common-apt-packages
+            - g++-8
+      env: MATRIX_EVAL="CXX=g++-8 BUILD_TYPE=Debug"
+
+    - name: "clang 8"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+          packages:
+            - *common-apt-packages
+            - clang-8
+            - libstdc++-8-dev
+      env: MATRIX_EVAL="CXX=clang++-8 BUILD_TYPE=Debug"
+
+install:
+  - python3 -m pip install pip --upgrade
+  - python3 -m pip install cmake==3.15.3 ninja==1.9.0.post1 --upgrade --user
+
+before_script:
+  - mkdir build && cd build
+  - eval "${MATRIX_EVAL}"
+
+script:
+  - cmake .. -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -GNinja
+  - cmake --build .
+  - ctest -j --output-on-failure
+
